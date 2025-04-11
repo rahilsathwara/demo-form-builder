@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,8 +48,8 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     // No duplicate found, proceed with creation
-                    form.setCreatedAt(LocalDateTime.now());
-                    form.setUpdatedAt(LocalDateTime.now());
+                    form.setCreatedAt(Instant.now());
+                    form.setUpdatedAt(Instant.now());
 
                     if (form.getStatus() == null) {
                         form.setStatus(FormStatus.DRAFT);
@@ -89,7 +90,7 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
         return findById(formId)
                 .map(form -> {
                     form.addElement(element);
-                    form.setUpdatedAt(LocalDateTime.now());
+                    form.setUpdatedAt(Instant.now());
                     return form;
                 })
                 .flatMap(this::create);  // Reuses create which handles caching and events
@@ -100,7 +101,7 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
         return findById(formId)
                 .map(form -> {
                     form.removeElement(elementId);
-                    form.setUpdatedAt(LocalDateTime.now());
+                    form.setUpdatedAt(Instant.now());
                     return form;
                 })
                 .flatMap(this::create);  // Reuses create which handles caching and events
@@ -132,7 +133,7 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
             existingForm.getSettings().putAll(updatedForm.getSettings());
         }
 
-        existingForm.setUpdatedAt(LocalDateTime.now());
+        existingForm.setUpdatedAt(Instant.now());
 
         return Mono.just(existingForm);
     }

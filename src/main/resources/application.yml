@@ -35,7 +35,6 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
-
 # Resilience settings
 resilience:
   redis:

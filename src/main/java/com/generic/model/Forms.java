@@ -1,14 +1,19 @@
 package com.generic.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.generic.enumration.FormStatus;
 import com.generic.enumration.FormType;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Data
@@ -33,8 +38,14 @@ public class Forms {
     private boolean isTemplate;
 
     private String createdBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @CreatedDate
+    private Instant createdAt;
+
+    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @LastModifiedDate
+    private Instant updatedAt;
 
 
     // Helper methods

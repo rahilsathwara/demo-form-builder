@@ -33,7 +33,7 @@ public class FormController {
             return formService.getFormsByUser(userId);
         } else {
             // This would typically be admin only and paginated
-            return Flux.empty(); // For safety, don't return all forms by default
+            return formService.getAllForms(); // For safety, don't return all forms by default
         }
     }
 
@@ -47,6 +47,12 @@ public class FormController {
     public Mono<Forms> updateForm(@PathVariable("formId") String formId, @RequestBody Forms form) {
         return formService.updateForm(formId, form);
     }
+
+    @PutMapping("/{formId}/status")
+    public Mono<Forms> changeFormStatus(@PathVariable("formId") String formId, @RequestBody Forms form) {
+        return formService.updateForm(formId, form);
+    }
+
 
     @DeleteMapping("/{formId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
