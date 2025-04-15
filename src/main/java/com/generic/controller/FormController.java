@@ -48,9 +48,9 @@ public class FormController {
         return formService.updateForm(formId, form);
     }
 
-    @PutMapping("/{formId}/status")
-    public Mono<Forms> changeFormStatus(@PathVariable("formId") String formId, @RequestBody Forms form) {
-        return formService.updateForm(formId, form);
+    @PatchMapping("/{formId}/status")
+    public Mono<Forms> changeFormStatus(@PathVariable("formId") String formId, @RequestParam("status") FormStatus status) {
+        return formService.changeFormStatus(formId, status);
     }
 
 

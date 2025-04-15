@@ -10,9 +10,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/templates")
+@RequestMapping("/api/form-templates")
 @RequiredArgsConstructor
-public class TemplateController {
+public class FormTemplateController {
 
     private final FormTemplateService templateService;
 

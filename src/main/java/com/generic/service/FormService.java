@@ -18,6 +18,7 @@ public interface FormService {
     Flux<Forms> getFormsByStatus(FormStatus status);
     Flux<Forms> getFormsByUser(String userId);
     Mono<Forms> updateForm(String id, Forms formUpdates);
+    Mono<Forms> changeFormStatus(String id, FormStatus status);
     Mono<Forms> addElement(String formId, FormElement element);
     Mono<Forms> removeElement(String formId, String elementId);
     Mono<Void> deleteForm(String id);

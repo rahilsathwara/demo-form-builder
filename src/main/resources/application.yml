@@ -29,6 +29,7 @@ spring:
     submission-topic: form-submissions
     template-topic: template-events
     analytics-topic: analytics-events
+    form-version-topic: form-versions
 
   # Disable Kafka auto-configuration if needed
   autoconfigure:

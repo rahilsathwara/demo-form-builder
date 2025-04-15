@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,8 +82,19 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
 
     @Override
     public Mono<Forms> updateForm(String id, Forms formUpdates) {
-        return getFormById(id)
-                .flatMap(existingForm -> updateEntityFields(existingForm, formUpdates));
+        return update(id, formUpdates);
+    }
+
+    @Override
+    public Mono<Forms> changeFormStatus(String id, FormStatus status) {
+        return formRepository.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Form not found with id: " + id)))
+                .flatMap(existingForm -> {
+                    existingForm.setStatus(status);
+                    existingForm.setUpdatedAt(Instant.now());
+
+                    return create(existingForm);
+                });
     }
 
     @Override
@@ -114,27 +126,67 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
 
     @Override
     protected Mono<Forms> updateEntityFields(Forms existingForm, Forms updatedForm) {
-        if (updatedForm.getTitle() != null) {
-            existingForm.setTitle(updatedForm.getTitle());
-        }
-        if (updatedForm.getDescription() != null) {
-            existingForm.setDescription(updatedForm.getDescription());
-        }
-        if (updatedForm.getStatus() != null) {
-            existingForm.setStatus(updatedForm.getStatus());
-        }
-        if (updatedForm.getFormType() != null) {
-            existingForm.setFormType(updatedForm.getFormType());
-        }
-        if (updatedForm.getTheme() != null) {
-            existingForm.setTheme(updatedForm.getTheme());
-        }
-        if (updatedForm.getSettings() != null && !updatedForm.getSettings().isEmpty()) {
-            existingForm.getSettings().putAll(updatedForm.getSettings());
-        }
+        try {
+            if (updatedForm == null) {
+                return Mono.error(new IllegalArgumentException("Updated form must not be null"));
+            }
 
-        existingForm.setUpdatedAt(Instant.now());
+            Optional.ofNullable(updatedForm.getTitle())
+                    .filter(title -> !title.trim().isEmpty())
+                    .ifPresent(existingForm::setTitle);
 
-        return Mono.just(existingForm);
+            Optional.ofNullable(updatedForm.getDescription())
+                    .ifPresent(existingForm::setDescription);
+
+            Optional.ofNullable(updatedForm.getStatus())
+                    .ifPresent(existingForm::setStatus);
+
+            Optional.ofNullable(updatedForm.getFormType())
+                    .ifPresent(existingForm::setFormType);
+
+            Optional.ofNullable(updatedForm.getTheme())
+                    .ifPresent(existingForm::setTheme);
+
+            if (updatedForm.getSettings() != null && !updatedForm.getSettings().isEmpty()) {
+                existingForm.getSettings().putAll(updatedForm.getSettings());
+            } else {
+                existingForm.setSettings(new java.util.HashMap<>());
+            }
+
+            // Replace or merge elements
+            if (updatedForm.getElements() != null && !updatedForm.getElements().isEmpty()) {
+                existingForm.setElements(new ArrayList<>(updatedForm.getElements()));
+                existingForm.updateElementOrder();
+            } else {
+                existingForm.setElements(new ArrayList<>());
+            }
+
+            // Replace or merge sections
+            if (updatedForm.getSections() != null && !updatedForm.getSections().isEmpty()) {
+                existingForm.setSections(new ArrayList<>(updatedForm.getSections()));
+            } else {
+                existingForm.setSections(new ArrayList<>());
+            }
+
+            // Replace or merge scripts
+            if (updatedForm.getScripts() != null && !updatedForm.getScripts().isEmpty()) {
+                existingForm.setScripts(new ArrayList<>(updatedForm.getScripts()));
+            } else {
+                existingForm.setScripts(new ArrayList<>());
+            }
+
+            Optional.ofNullable(updatedForm.getTemplateId())
+                    .ifPresent(existingForm::setTemplateId);
+
+            existingForm.setTemplate(updatedForm.isTemplate());
+
+            existingForm.setUpdatedAt(Instant.now());
+
+            return Mono.just(existingForm);
+
+        } catch (Exception ex) {
+            log.error("Failed to update form fields: {}", ex.getMessage(), ex);
+            return Mono.error(new RuntimeException("Failed to update form fields", ex));
+        }
     }
 }

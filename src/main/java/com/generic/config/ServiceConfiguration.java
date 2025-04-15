@@ -1,9 +1,6 @@
 package com.generic.config;
 
-import com.generic.model.FormAnalytics;
-import com.generic.model.FormSubmission;
-import com.generic.model.FormTemplate;
-import com.generic.model.Forms;
+import com.generic.model.*;
 import com.generic.service.cache.RedisCacheService;
 import com.generic.service.event.KafkaEventService;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +17,7 @@ public class ServiceConfiguration {
     @Value("${spring.kafka.submission-topic:form-submissions}") private String submissionTopic;
     @Value("${spring.kafka.template-topic:template-events}") private String templateTopic;
     @Value("${spring.kafka.analytics-topic:analytics-events}") private String analyticsTopic;
+    @Value("${spring.kafka.form-version-topic:form-versions}") private String formVersionsTopic;
 
     // Redis Cache Services
     @Bean
@@ -66,6 +64,17 @@ public class ServiceConfiguration {
         );
     }
 
+    @Bean
+    public RedisCacheService<FormVersion, String> formVersionCacheService(
+            ReactiveRedisConnectionFactory redisFactory,
+            RedisConfig redisConfig) {
+        return new RedisCacheService<>(
+                redisConfig.reactiveRedisTemplate(redisFactory, FormVersion.class),
+                "versions",
+                Duration.ofDays(1)
+        );
+    }
+
 
     // Kafka Event Services
     @Bean
@@ -107,5 +116,15 @@ public class ServiceConfiguration {
                 kafkaConfig.reactiveKafkaProducerTemplate(String.class, FormAnalytics.class);
 
         return new KafkaEventService<>(template, analyticsTopic);
+    }
+
+    @Bean
+    public KafkaEventService<String, FormVersion> versionsEventService(
+            ReactiveKafkaConfig kafkaConfig) {
+
+        ReactiveKafkaProducerTemplate<String, FormVersion> template =
+                kafkaConfig.reactiveKafkaProducerTemplate(String.class, FormVersion.class);
+
+        return new KafkaEventService<>(template, formVersionsTopic);
     }
 }
