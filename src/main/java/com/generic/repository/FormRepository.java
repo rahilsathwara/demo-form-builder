@@ -13,15 +13,15 @@ public interface FormRepository extends ReactiveMongoRepository<Forms, String> {
 
     Flux<Forms> findByCreatedBy(String createdBy);
     Mono<Forms> findByTitle(String title);
-
+    Mono<Forms> findByIdAndStatus(String id, FormStatus formStatus);
+    Mono<Long> countByStatus(FormStatus status);
 
     Flux<Forms> findByStatus(FormStatus status);
+
 
     @Query("{'isTemplate': true}")
     Flux<Forms> findAllTemplates();
 
     @Query("{'elements.type': ?0}")
     Flux<Forms> findByElementType(String elementType);
-
-    Mono<Long> countByStatus(FormStatus status);
 }

@@ -71,6 +71,11 @@ public class FormServiceImpl extends GenericEntityService<Forms, String> impleme
     }
 
     @Override
+    public Mono<Forms> getPublishedForm(String id) {
+        return formRepository.findByIdAndStatus(id,FormStatus.PUBLISHED);
+    }
+
+    @Override
     public Flux<Forms> getFormsByStatus(FormStatus status) {
         return formRepository.findByStatus(status);
     }

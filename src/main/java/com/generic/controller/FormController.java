@@ -23,6 +23,11 @@ public class FormController {
         return formService.getFormById(formId);
     }
 
+    @GetMapping("/published/{formId}")
+    public Mono<Forms> getPublishedForm(@PathVariable("formId") String formId) {
+        return formService.getPublishedForm(formId);
+    }
+
     @GetMapping
     public Flux<Forms> getAllForms(@RequestParam(required = false) FormStatus status,
             @RequestParam(required = false) String userId) {

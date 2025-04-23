@@ -15,6 +15,7 @@ public interface FormService {
     Mono<Forms> createForm(Forms form);
     Flux<Forms> getAllForms();
     Mono<Forms> getFormById(String id);
+    Mono<Forms> getPublishedForm(String id);
     Flux<Forms> getFormsByStatus(FormStatus status);
     Flux<Forms> getFormsByUser(String userId);
     Mono<Forms> updateForm(String id, Forms formUpdates);
